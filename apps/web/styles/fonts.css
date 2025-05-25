@@ -1,0 +1,136 @@
+/* Custom Local Fonts */
+@font-face {
+    font-family: 'Satoshi';
+    src: url('/fonts/Satoshi-Variable.woff2') format('woff2');
+    font-weight: 300 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'General Sans';
+    src: url('/fonts/GeneralSans-Variable.woff2') format('woff2');
+    font-weight: 200 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Clash Display';
+    src: url('/fonts/ClashDisplay-Variable.woff2') format('woff2');
+    font-weight: 200 700;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Cabinet Grotesk';
+    src: url('/fonts/CabinetGrotesk-Variable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Lexend';
+    src: url('/fonts/Lexend-Variable.woff2') format('woff2');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Bricolage Grotesque';
+    src: url('/fonts/BricolageGrotesque-Variable.woff2') format('woff2');
+    font-weight: 200 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* Font Stack Definitions */
+:root {
+    /* Sans Serif Fonts */
+    --font-sans-primary: 'Inter', 'Satoshi', 'General Sans', system-ui, sans-serif;
+    --font-sans-modern: 'DM Sans', 'Cabinet Grotesk', system-ui, sans-serif;
+    --font-sans-readable: 'Lexend', 'Inter', system-ui, sans-serif;
+
+    /* Display/Heading Fonts */
+    --font-display-fancy: 'Playfair Display', 'Crimson Text', Georgia, serif;
+    --font-display-modern: 'Clash Display', 'Bricolage Grotesque', system-ui, sans-serif;
+
+    /* Serif Fonts */
+    --font-serif-primary: 'Source Serif Pro', 'Crimson Text', Georgia, serif;
+    --font-serif-elegant: 'Crimson Text', 'Playfair Display', Georgia, serif;
+
+    /* Monospace Fonts */
+    --font-mono-primary: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    --font-mono-alt: 'Fira Code', 'JetBrains Mono', monospace;
+}
+
+/* Utility Classes for Font Testing */
+.font-sans-primary {
+    font-family: var(--font-sans-primary);
+}
+
+.font-sans-modern {
+    font-family: var(--font-sans-modern);
+}
+
+.font-sans-readable {
+    font-family: var(--font-sans-readable);
+}
+
+.font-display-fancy {
+    font-family: var(--font-display-fancy);
+}
+
+.font-display-modern {
+    font-family: var(--font-display-modern);
+}
+
+.font-serif-primary {
+    font-family: var(--font-serif-primary);
+}
+
+.font-serif-elegant {
+    font-family: var(--font-serif-elegant);
+}
+
+.font-mono-primary {
+    font-family: var(--font-mono-primary);
+}
+
+.font-mono-alt {
+    font-family: var(--font-mono-alt);
+}
+
+/* Typography Scale */
+.text-headline {
+    font-size: clamp(2rem, 5vw, 4rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.text-display {
+    font-size: clamp(1.5rem, 4vw, 3rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+}
+
+.text-title {
+    font-size: clamp(1.25rem, 3vw, 2rem);
+    line-height: 1.3;
+    letter-spacing: -0.005em;
+}
+
+/* Font Optimization */
+.font-crisp {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+.font-smooth {
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+}

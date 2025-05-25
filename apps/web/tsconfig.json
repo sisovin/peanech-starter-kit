@@ -6,6 +6,7 @@
       "@/*": ["./*"],
       "@workspace/ui/*": ["../../packages/ui/src/*"]
     },
+    "forceConsistentCasingInFileNames": true,
     "plugins": [
       {
         "name": "next"
