@@ -1,5 +1,5 @@
 {
-  "name": "shadcn-ui-monorepo",
+  "name": "peanech-starter-kit",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -22,7 +22,10 @@
   },
   "pnpm": {
     "ignoredBuiltDependencies": [
+      "@clerk/shared",
+      "@tailwindcss/oxide",
       "core-js-pure",
+      "esbuild",
       "sharp"
     ]
   },
