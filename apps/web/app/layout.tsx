@@ -12,7 +12,7 @@ import { HydrationErrorHandler } from "@/components/hydration-error-handler";
 import { HydrationErrorBoundary } from "@/components/hydration-error-boundary";
 
 export const metadata: Metadata = {
-  title: "Copa Starter Kit",
+  title: "Peanech Starter Kit",
   description: "Next.js application with Clerk authentication",
 };
 

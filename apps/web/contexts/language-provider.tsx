@@ -19,10 +19,8 @@ const translations = {
         "nav.home": "Home",
         "nav.dashboard": "Dashboard",
         "nav.language": "Language",
-        "nav.theme": "Theme",
-
-        // Home page
-        "home.title": "Welcome to Copa Starter Kit",
+        "nav.theme": "Theme",        // Home page
+        "home.title": "Welcome to Peanech Starter Kit",
         "home.subtitle": "A fully-featured authentication system using Clerk with Next.js 15. Sign in to access your personalized dashboard.",
         "home.getStarted": "Get Started",
         "home.learnMore": "Learn More",
@@ -52,7 +50,7 @@ const translations = {
         "nav.theme": "ធីម",
 
         // Home page
-        "home.title": "សូមស្វាគមន៍មកកាន់ Copa Starter Kit",
+        "home.title": "សូមស្វាគមន៍មកកាន់ Peanech Starter Kit",
         "home.subtitle": "ប្រព័ន្ធផ្ទៀងផ្ទាត់ភាពត្រឹមត្រូវពេញលេញដោយប្រើ Clerk ជាមួយ Next.js 15។ ចូលដើម្បីចូលប្រើផ្ទាំងគ្រប់គ្រងផ្ទាល់ខ្លួនរបស់អ្នក។",
         "home.getStarted": "ចាប់ផ្តើម",
         "home.learnMore": "ស្វែងយល់បន្ថែម",
