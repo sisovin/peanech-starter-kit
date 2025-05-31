@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { action, mutation, query } from "./_generated/server";
+import { api } from "./_generated/api";
 import { ConvexError } from "convex/values";
 import { z } from "zod";
 import { nanoid } from "nanoid";
@@ -275,8 +276,7 @@ export const handlePayWayWebhook = action({
     payload: v.any(),
     signature: v.string(),
   },
-  handler: async (ctx, args) => {
-    // Verify HMAC signature
+  handler: async (ctx, args) => {    // Verify HMAC signature
     const calculatedSignature = calculateHmac(
       JSON.stringify(args.payload),
       process.env.PAYWAY_WEBHOOK_SECRET || ""
@@ -287,15 +287,16 @@ export const handlePayWayWebhook = action({
     }
 
     // Validate payload
-    const payload = WebhookPayloadSchema.parse(args.payload); // Find the corresponding payment in the database
-    const payment = await ctx.db
-      .query("payments")
-      .filter((q) => q.eq(q.field("transactionId"), payload.transactionId))
-      .first();
+    const payload = WebhookPayloadSchema.parse(args.payload);    // Find the corresponding payment in the database
+    const paymentResult = await ctx.runQuery(api.payments.getPaymentByTransactionId, {
+      transactionId: payload.transactionId,
+    });
 
-    if (!payment) {
+    if (!paymentResult.found || !paymentResult.payment) {
       throw new ConvexError("Payment not found");
     }
+
+    const payment = paymentResult.payment;
 
     // Update payment status
     let newStatus;
@@ -309,15 +310,12 @@ export const handlePayWayWebhook = action({
         break;
       default:
         newStatus = "pending";
-    }
-
-    // Update the payment in the database
-    await ctx.db.patch(payment._id, {
+    }    // Update the payment in the database
+    await ctx.runMutation(api.payments.updatePaymentByTransactionId, {
+      transactionId: payload.transactionId,
       status: newStatus,
-      gatewayTransactionId: payload.transactionId,
       gatewayResponse: payload,
       completedAt: payload.status === "APPROVED" ? Date.now() : undefined,
-      updatedAt: Date.now(),
     });
 
     // Send email receipt if payment was successful
@@ -522,19 +520,15 @@ export const getRecentPayments = query({
       paymentsQuery = paymentsQuery.filter((q) =>
         q.eq(q.field("customerId"), args.userId)
       );
-    }
-
-    // Order by creation time, most recent first
-    paymentsQuery = paymentsQuery.order("desc");
+    }    // Order by creation time, most recent first
+    let orderedQuery = paymentsQuery.order("desc");
 
     // Limit the number of results
     if (args.limit) {
-      paymentsQuery = paymentsQuery.take(args.limit);
+      return await orderedQuery.take(args.limit);
     } else {
-      paymentsQuery = paymentsQuery.take(10); // Default limit
+      return await orderedQuery.take(10); // Default limit
     }
-
-    return await paymentsQuery;
   },
 });
 

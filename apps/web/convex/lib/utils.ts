@@ -49,10 +49,9 @@ export async function validateAuthenticated(
   if (!auth) {
     throw new ConvexError({ code: 401, message: "Unauthorized" });
   }
-
   const user = await ctx.db
     .query("users")
-    .filter((q) => q.eq(q.field("clerkId"), auth.subject))
+    .filter((q: any) => q.eq(q.field("clerkId"), auth.subject))
     .first();
 
   if (!user) {
@@ -100,12 +99,11 @@ export async function trackActivity(
     resourceType,
     resourceId,
     metadata,
-    timestamp: Date.now(),
-    ipAddress: ctx.request?.headers?.[1]?.find(
-      ([k]) => k.toLowerCase() === "x-forwarded-for"
+    timestamp: Date.now(), ipAddress: ctx.request?.headers?.[1]?.find(
+      ([k]: any) => k.toLowerCase() === "x-forwarded-for"
     )?.[1],
     userAgent: ctx.request?.headers?.[1]?.find(
-      ([k]) => k.toLowerCase() === "user-agent"
+      ([k]: any) => k.toLowerCase() === "user-agent"
     )?.[1],
   });
 }
@@ -129,9 +127,8 @@ export async function recordAuditLog(
     resourceId,
     previousState,
     newState,
-    timestamp: Date.now(),
-    ipAddress: ctx.request?.headers?.[1]?.find(
-      ([k]) => k.toLowerCase() === "x-forwarded-for"
+    timestamp: Date.now(), ipAddress: ctx.request?.headers?.[1]?.find(
+      ([k]: any) => k.toLowerCase() === "x-forwarded-for"
     )?.[1],
   });
 }

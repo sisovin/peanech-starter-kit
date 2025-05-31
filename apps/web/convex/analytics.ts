@@ -38,24 +38,17 @@ export const trackApiUsage = mutation({
       }
     } catch (e) {
       // Ignore authentication errors for this endpoint
-    }
-
-    // Log the API usage
+    }    // Log the API usage
     await ctx.db.insert("apiUsage", {
       endpoint: args.endpoint,
       method: args.method,
       userId,
       statusCode: args.statusCode,
       latencyMs: args.latencyMs,
-      timestamp: Date.now(),
-      requestSize: args.requestSize,
+      timestamp: Date.now(), requestSize: args.requestSize,
       responseSize: args.responseSize,
-      ipAddress: ctx.request?.headers?.[1]?.find(
-        ([k]) => k.toLowerCase() === "x-forwarded-for"
-      )?.[1],
-      userAgent: ctx.request?.headers?.[1]?.find(
-        ([k]) => k.toLowerCase() === "user-agent"
-      )?.[1],
+      ipAddress: undefined, // Not available in Convex mutations
+      userAgent: undefined, // Not available in Convex mutations
       errorMessage: args.errorMessage,
     });
 
@@ -109,21 +102,27 @@ export const getApiUsageStats = query({
 
     // Group by endpoint
     const endpointCounts: Record<string, number> = {};
-    const endpointLatencies: Record<string, number[]> = {};
-
-    for (const record of usageData) {
+    const endpointLatencies: Record<string, number[]> = {}; for (const record of usageData) {
       endpointCounts[record.endpoint] =
         (endpointCounts[record.endpoint] || 0) + 1;
 
       if (!endpointLatencies[record.endpoint]) {
         endpointLatencies[record.endpoint] = [];
       }
-      endpointLatencies[record.endpoint].push(record.latencyMs);
-    }
-
-    // Calculate average latencies
+      endpointLatencies[record.endpoint]!.push(record.latencyMs);
+    }// Calculate average latencies
     const endpointStats = Object.keys(endpointCounts).map((endpoint) => {
       const latencies = endpointLatencies[endpoint];
+      if (!latencies || latencies.length === 0) {
+        return {
+          endpoint,
+          requestCount: endpointCounts[endpoint] || 0,
+          avgLatencyMs: 0,
+          minLatencyMs: 0,
+          maxLatencyMs: 0,
+        };
+      }
+
       const avgLatency =
         latencies.reduce((sum, val) => sum + val, 0) / latencies.length;
       const minLatency = Math.min(...latencies);
@@ -207,20 +206,22 @@ export const getUserActivityStats = query({
 
     // Create daily activity counts
     const dailyActivity: Record<string, number> = {};
-    const msPerDay = 24 * 60 * 60 * 1000;
-
-    // Initialize days
+    const msPerDay = 24 * 60 * 60 * 1000;    // Initialize days
     let currentDay = start;
     while (currentDay <= end) {
       const dateStr = new Date(currentDay).toISOString().split("T")[0];
-      dailyActivity[dateStr] = 0;
+      if (dateStr) {
+        dailyActivity[dateStr] = 0;
+      }
       currentDay += msPerDay;
     }
 
     // Count activities per day
     for (const activity of activities) {
       const dateStr = new Date(activity.timestamp).toISOString().split("T")[0];
-      dailyActivity[dateStr] = (dailyActivity[dateStr] || 0) + 1;
+      if (dateStr) {
+        dailyActivity[dateStr] = (dailyActivity[dateStr] || 0) + 1;
+      }
     }
 
     // Top 5 most active users
@@ -233,15 +234,14 @@ export const getUserActivityStats = query({
     const topUsers = await Promise.all(
       Object.entries(userActivityCounts)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 5)
-        .map(async ([userId, count]) => {
+        .slice(0, 5).map(async ([userId, count]) => {
           const user = await ctx.db.get(userId as any);
           return {
             userId,
             name: user
-              ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
+              ? `${(user as any).firstName || ""} ${(user as any).lastName || ""}`.trim()
               : "Unknown",
-            email: user?.email || "Unknown",
+            email: (user as any)?.email || "Unknown",
             activityCount: count,
           };
         })
@@ -263,6 +263,7 @@ export const getUserActivityStats = query({
  * Get dashboard stats for user (for personal dashboard)
  */
 export const getDashboardStats = query({
+  args: {},
   handler: async (ctx) => {
     // Get authenticated user
     let userId;
@@ -278,13 +279,11 @@ export const getDashboardStats = query({
     const oneWeekAgo = now - 7 * 24 * 60 * 60 * 1000;
 
     // Get user
-    const user = await ctx.db.get(userId);
-
-    // Get recent activities
+    const user = await ctx.db.get(userId);    // Get recent activities
     const recentActivities = await ctx.db
       .query("activities")
       .filter((q) => q.eq(q.field("userId"), userId))
-      .order("desc", (q) => q.field("timestamp"))
+      .order("desc")
       .take(5);
 
     // Get today's activity count

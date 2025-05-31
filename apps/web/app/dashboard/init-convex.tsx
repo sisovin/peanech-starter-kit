@@ -27,7 +27,7 @@ export function InitConvex() {
         );
       }
 
-      const result = await seedStats();
+      const result = await seedStats({});
       setInitResult(result);
     } catch (error) {
       setInitResult({

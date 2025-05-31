@@ -248,7 +248,7 @@ export class ErrorBoundary extends React.Component<
 // Utility function to handle errors in SSR context
 export function withErrorHandling<T extends object>(
   Component: React.ComponentType<T>,
-  ErrorComponent: React.ComponentType<{ error: Error }> = ErrorFallback
+  ErrorComponent: React.ComponentType<{ error: Error; resetErrorBoundary: () => void }> = ErrorFallback
 ) {
   return function WithErrorHandling(props: T & { error?: Error }) {
     if (props.error) {

@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -416,20 +417,17 @@ export default function PaymentSuccessPage() {
                         </span>
                       </div>
                     )}
-
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">
                         Transaction ID:
                       </span>
                       <span className="text-sm font-mono text-xs">
-                        {transaction.transactionId}
+                        {transactionId}
                       </span>
-                    </div>
-
-                    <div className="flex justify-between items-center">
+                    </div>                    <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Date:</span>
                       <span className="text-sm">
-                        {new Date(transaction.updatedAt).toLocaleString()}
+                        {transaction.updatedAt && new Date(transaction.updatedAt).toLocaleString()}
                       </span>
                     </div>
                   </div>
@@ -444,7 +442,7 @@ export default function PaymentSuccessPage() {
                               userName={user?.fullName || "Customer"}
                             />
                           }
-                          fileName={`receipt-${transaction.transactionId}.pdf`}
+                          fileName={`receipt-${transactionId}.pdf`}
                           className="w-full"
                         >
                           {({ loading }) => (

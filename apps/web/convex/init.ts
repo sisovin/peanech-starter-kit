@@ -1,7 +1,9 @@
 import { mutation } from "./_generated/server";
+import type { MutationCtx } from "./_generated/server";
 
-export const seedStats = mutation({
-  handler: async (ctx) => {
+export const seedStats: ReturnType<typeof mutation> = mutation({
+  args: {},
+  handler: async (ctx: MutationCtx): Promise<{ status: string; count?: number }> => {
     // Check if we already have stats
     const existingStats = await ctx.db.query("stats").collect();
     if (existingStats.length > 0) {

@@ -98,7 +98,9 @@ function checkRateLimit(ip: string): { allowed: boolean; message?: string } {
 
 export async function POST(request: NextRequest) {
   // Get IP for rate limiting
-  const ip = request.ip || "unknown";
+  const ip = request.headers.get("x-forwarded-for") ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
 
   // Check rate limit
   const rateLimitCheck = checkRateLimit(ip);
@@ -194,13 +196,12 @@ export async function POST(request: NextRequest) {
     // Handle validation errors
     if (error instanceof ZodError) {
       return createErrorResponse(400, `Validation error: ${error.message}`);
-    }
-
-    // Handle OpenAI API errors
-    if (error.response) {
+    }    // Handle OpenAI API errors
+    if (error && typeof error === 'object' && 'response' in error) {
+      const apiError = error as any;
       return createErrorResponse(
-        error.response.status || 500,
-        `OpenAI API error: ${error.response.data?.error?.message || "Unknown error"}`
+        apiError.response?.status || 500,
+        `OpenAI API error: ${apiError.response?.data?.error?.message || "Unknown error"}`
       );
     }
 

@@ -4,7 +4,7 @@ import RelatedPosts from "@/components/mdx/related-posts";
 import ShareButtons from "@/components/mdx/share-buttons";
 import TableOfContents from "@/components/mdx/table-of-contents";
 import { extractTOC, findRelatedPosts, formatDate } from "@/lib/blog-utils";
-import { allPosts } from "@/.contentlayer/generated";
+import { allPosts, type Post } from "@/.contentlayer/generated";
 import { ChevronLeft, Clock } from "lucide-react";
 import { Metadata } from "next";
 import Image from "next/image";
@@ -12,9 +12,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 interface PostPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 // Generate static params for all blog posts
@@ -28,24 +28,24 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: PostPageProps): Promise<Metadata> {
-  const post = allPosts.find((post) => post.slug === params.slug);
+  const { slug } = await params;
+  const post = allPosts.find((post) => post.slug === slug);
 
   if (!post) {
     return {
       title: "Post Not Found",
     };
   }
-
   return {
     title: post.title,
     description: post.description,
-    authors: [{ name: post.author }],
+    authors: post.author ? [{ name: post.author }] : [],
     openGraph: {
       title: post.title,
       description: post.description,
       type: "article",
       publishedTime: post.date,
-      authors: [post.author],
+      authors: post.author ? [post.author] : [],
       images: post.image ? [post.image] : [],
     },
     twitter: {
@@ -57,9 +57,11 @@ export async function generateMetadata({
   };
 }
 
-export default function PostPage({ params }: PostPageProps) {
+export default async function PostPage({ params }: PostPageProps) {
+  const { slug } = await params;
+
   // Find the post from all available posts
-  const post = allPosts.find((post) => post.slug === params.slug);
+  const post = allPosts.find((post) => post.slug === slug);
 
   // Handle post not found case
   if (!post) {
@@ -67,10 +69,10 @@ export default function PostPage({ params }: PostPageProps) {
   }
 
   // Extract table of contents from the post content
-  const toc = extractTOC(post.body.html);
+  const toc = extractTOC(post.body.raw);
 
   // Find related posts based on tags
-  const relatedPosts = findRelatedPosts(params.slug);
+  const relatedPosts = findRelatedPosts(slug);
 
   // Get the current URL for sharing
   const postUrl = `/blog/${post.slug}`;
@@ -107,12 +109,10 @@ export default function PostPage({ params }: PostPageProps) {
           {/* Description (if available) */}
           {post.description && (
             <p className="text-xl text-muted-foreground">{post.description}</p>
-          )}
-
-          {/* Post metadata */}
+          )}          {/* Post metadata */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-            <p className="font-medium">{post.author}</p>
-            <div className="h-1 w-1 rounded-full bg-muted-foreground"></div>
+            {post.author && <p className="font-medium">{post.author}</p>}
+            {post.author && <div className="h-1 w-1 rounded-full bg-muted-foreground"></div>}
             <p>{formatDate(post.date)}</p>
             <div className="h-1 w-1 rounded-full bg-muted-foreground"></div>
 
@@ -145,12 +145,12 @@ export default function PostPage({ params }: PostPageProps) {
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="flex-1">
             {/* MDX content */}
-            <MdxProvider code={post.body.code} />
-
-            {/* Author bio */}
-            <div className="mt-16 mb-8">
-              <AuthorBio author={post.author} />
-            </div>
+            <MdxProvider code={post.body.code} />            {/* Author bio */}
+            {post.author && (
+              <div className="mt-16 mb-8">
+                <AuthorBio author={post.author} />
+              </div>
+            )}
 
             {/* Share buttons (bottom of post) */}
             <div className="mt-8">

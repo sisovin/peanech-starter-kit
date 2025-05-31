@@ -2,7 +2,7 @@ import { PostFrontmatterSchema } from "@/types/blog";
 import { z } from "zod";
 import { fromZodError } from "zod-validation-error";
 import { TOCEntry, RelatedPost } from "@/types/blog";
-import { allPosts } from "contentlayer/generated";
+import { allPosts } from "@/.contentlayer/generated";
 
 /**
  * Extract the table of contents from HTML content
@@ -11,12 +11,16 @@ export function extractTOC(content: string): TOCEntry[] {
   const headingRegex = /<h([2-3]).*?id="(.*?)".*?>(.*?)<\/h[2-3]>/g;
   const toc: TOCEntry[] = [];
   let match;
-
   while ((match = headingRegex.exec(content)) !== null) {
-    const level = parseInt(match[1], 10);
+    const levelStr = match[1];
     const id = match[2];
+    const textStr = match[3];
+
+    if (!levelStr || !id || !textStr) continue;
+
+    const level = parseInt(levelStr, 10);
     // Remove HTML tags from heading text
-    const text = match[3].replace(/<[^>]*>?/gm, "");
+    const text = textStr.replace(/<[^>]*>?/gm, "");
     toc.push({ level, id, text });
   }
 
@@ -60,9 +64,8 @@ export function findRelatedPosts(
   }
 
   const currentTags = new Set(currentPost.tags);
-
   return allPosts
-    .filter((post) => post.slug !== currentSlug && !post.draft)
+    .filter((post) => post.slug !== currentSlug && post.published !== false)
     .map((post) => {
       // Calculate similarity score based on shared tags
       const postTags = new Set(post.tags || []);

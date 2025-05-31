@@ -38,7 +38,7 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ComponentPropsWithoutRef<"button">,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   isLoading?: boolean;
   loadingText?: string;
@@ -99,13 +99,13 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           leftIcon &&
           React.cloneElement(leftIcon as React.ReactElement, {
             "aria-hidden": true,
-          })}
+          } as any)}
         {children}
         {!isLoading &&
           rightIcon &&
           React.cloneElement(rightIcon as React.ReactElement, {
             "aria-hidden": true,
-          })}
+          } as any)}
       </Comp>
     );
   }

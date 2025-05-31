@@ -42,12 +42,12 @@ export function HeroSection({
   const typingSpeed = 100; // milliseconds per character
   const deleteSpeed = 50; // faster deletion
   const pauseBeforeDelete = 2000; // pause before starting delete animation
-  const pauseBeforeNextWord = 500; // pause before typing next word
-  // Handle typewriter effect with optimized rendering
+  const pauseBeforeNextWord = 500; // pause before typing next word  // Handle typewriter effect with optimized rendering
   useEffect(() => {
     if (typewriterTexts.length === 0) return;
 
     const currentWord = typewriterTexts[currentTypewriterIndex];
+    if (!currentWord) return; // Guard against undefined currentWord
 
     let animationId: number;
     let lastTime = 0;
@@ -198,19 +198,17 @@ export function HeroSection({
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-tr from-black/20 to-black/5 pointer-events-none z-10" />
 
                   {/* Video thumbnail and player */}
-                  <div className="relative aspect-video w-full">
-                    <video
-                      ref={videoRef}
-                      poster={videoThumbnail || "/images/video-thumbnail.jpg"}
-                      className="w-full h-full object-cover"
-                      src={videoSrc}
-                      muted
-                      playsInline
-                      loop
-                      loading="lazy"
-                      preload="none"
-                      aria-label="Demo video"
-                    />
+                  <div className="relative aspect-video w-full">                    <video
+                    ref={videoRef}
+                    poster={videoThumbnail || "/images/video-thumbnail.jpg"}
+                    className="w-full h-full object-cover"
+                    src={videoSrc}
+                    muted
+                    playsInline
+                    loop
+                    preload="none"
+                    aria-label="Demo video"
+                  />
 
                     {/* Play button overlay */}
                     <button

@@ -7,18 +7,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 interface TagPageProps {
-  params: {
+  params: Promise<{
     tag: string;
-  };
+  }>;
 }
 
 // Generate metadata for each tag page
 export async function generateMetadata({
   params,
 }: TagPageProps): Promise<Metadata> {
-  const tag = decodeURIComponent(params.tag);
+  const { tag } = await params;
+  const decodedTag = decodeURIComponent(tag);
   const postsByTag = allPosts.filter(
-    (post) => post.tags?.includes(tag) && !post.draft
+    (post) => post.tags?.includes(decodedTag) && post.published
   );
 
   if (postsByTag.length === 0) {
@@ -26,10 +27,9 @@ export async function generateMetadata({
       title: "Tag Not Found",
     };
   }
-
   return {
-    title: `Posts tagged with "${tag}"`,
-    description: `Browse all posts tagged with ${tag}`,
+    title: `Posts tagged with "${decodedTag}"`,
+    description: `Browse all posts tagged with ${decodedTag}`,
   };
 }
 
@@ -48,10 +48,11 @@ export async function generateStaticParams() {
   }));
 }
 
-export default function TagPage({ params }: TagPageProps) {
-  const tag = decodeURIComponent(params.tag);
+export default async function TagPage({ params }: TagPageProps) {
+  const { tag } = await params;
+  const decodedTag = decodeURIComponent(tag);
   const postsByTag = allPosts
-    .filter((post) => post.tags?.includes(tag) && !post.draft)
+    .filter((post) => post.tags?.includes(decodedTag) && post.published)
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   if (postsByTag.length === 0) {
@@ -69,10 +70,9 @@ export default function TagPage({ params }: TagPageProps) {
       </Link>
 
       <div className="flex flex-col items-start gap-4 md:flex-row md:justify-between md:gap-8">
-        <div className="flex-1 space-y-4">
-          <h1 className="inline-block text-3xl font-bold tracking-tight lg:text-4xl">
-            Posts tagged with <span className="text-primary">#{tag}</span>
-          </h1>
+        <div className="flex-1 space-y-4">          <h1 className="inline-block text-3xl font-bold tracking-tight lg:text-4xl">
+          Posts tagged with <span className="text-primary">#{decodedTag}</span>
+        </h1>
           <p className="text-xl text-muted-foreground">
             Browse {postsByTag.length} post{postsByTag.length > 1 ? "s" : ""}{" "}
             with this tag
@@ -105,10 +105,9 @@ export default function TagPage({ params }: TagPageProps) {
                     {post.tags.map((postTag) => (
                       <Link
                         key={postTag}
-                        href={`/blog/tag/${postTag}`}
-                        className={`text-xs px-2 py-1 rounded-full ${postTag === tag
-                            ? "bg-primary text-white hover:bg-primary/90"
-                            : "bg-muted text-muted-foreground hover:text-foreground"
+                        href={`/blog/tag/${postTag}`} className={`text-xs px-2 py-1 rounded-full ${postTag === decodedTag
+                          ? "bg-primary text-white hover:bg-primary/90"
+                          : "bg-muted text-muted-foreground hover:text-foreground"
                           }`}
                       >
                         #{postTag}

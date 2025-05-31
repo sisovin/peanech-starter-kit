@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import crypto from "crypto";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import * as Sentry from "@sentry/nextjs";
@@ -48,23 +47,36 @@ export type BakongWebhookPayload = z.infer<typeof BakongWebhookSchema>;
 /**
  * Verify Bakong signature
  */
-function verifyBakongSignature(
+async function verifyBakongSignature(
   payload: any,
   signature: string,
   timestamp: string,
   secret: string
-): boolean {
-  const dataToSign = `${timestamp}.${JSON.stringify(payload)}`;
-  const expectedSignature = crypto
-    .createHmac("sha256", secret)
-    .update(dataToSign)
-    .digest("hex");
-
+): Promise<boolean> {
   try {
-    return crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(expectedSignature)
+    const dataToSign = `${timestamp}.${JSON.stringify(payload)}`;
+
+    // Convert secret to ArrayBuffer
+    const secretBuffer = new TextEncoder().encode(secret);
+    const dataBuffer = new TextEncoder().encode(dataToSign);
+
+    // Import key for HMAC
+    const key = await crypto.subtle.importKey(
+      "raw",
+      secretBuffer,
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
     );
+
+    // Generate HMAC signature
+    const signatureBuffer = await crypto.subtle.sign("HMAC", key, dataBuffer);
+    const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    // Compare signatures
+    return signature === expectedSignature;
   } catch (error) {
     console.error("Signature verification error:", error);
     return false;
@@ -112,34 +124,28 @@ export async function POST(request: NextRequest) {
     }
 
     // Get the webhook secret
-    const webhookSecret = process.env.BAKONG_WEBHOOK_SECRET;
-    if (!webhookSecret) {
+    const webhookSecret = process.env.BAKONG_WEBHOOK_SECRET; if (!webhookSecret) {
       const error = "Bakong webhook secret is not configured";
       console.error(error);
-      Sentry.captureError(new Error(error));
+      Sentry.captureException(new Error(error));
 
       return new Response(
         JSON.stringify({ error: "Server misconfiguration" }),
         { status: 500 }
       );
-    }
-
-    // Verify signature
-    const isValidSignature = verifyBakongSignature(
+    }    // Verify signature
+    const isValidSignature = await verifyBakongSignature(
       rawBody,
       signature,
       timestamp,
       webhookSecret
-    );
-
-    if (!isValidSignature) {
+    ); if (!isValidSignature) {
       const error = "Invalid Bakong webhook signature";
       console.error(error);
-      Sentry.captureMessage(error, Sentry.Severity.Warning, {
+      Sentry.captureMessage(error, {
         extra: {
           signature,
           timestamp,
-          ip: request.ip,
         },
       });
 
@@ -168,11 +174,9 @@ export async function POST(request: NextRequest) {
       case "payment.expired":
         paymentStatus = "failed";
         break;
-    }
-
-    // Update payment in Convex DB
+    }    // Update payment in Convex DB
     await convex.mutation(api.payments.updatePaymentStatus, {
-      transactionId: payload.data.transactionId,
+      id: payload.data.transactionId as any,
       status: paymentStatus,
       gatewayResponse: payload,
       completedAt: payload.event === "payment.success" ? Date.now() : undefined,
@@ -182,12 +186,13 @@ export async function POST(request: NextRequest) {
     processedIdempotencyKeys.add(payload.idempotencyKey);
 
     // Clean up old keys (should use Redis TTL in production)
-    if (processedIdempotencyKeys.size > 1000) {
-      // Clear oldest entries if we have too many
+    if (processedIdempotencyKeys.size > 1000) {      // Clear oldest entries if we have too many
       const keysIterator = processedIdempotencyKeys.keys();
       for (let i = 0; i < 200; i++) {
         const key = keysIterator.next().value;
-        processedIdempotencyKeys.delete(key);
+        if (key) {
+          processedIdempotencyKeys.delete(key);
+        }
       }
     }
 
@@ -218,9 +223,3 @@ export async function POST(request: NextRequest) {
     });
   }
 }
-
-// For testing purposes - export these functions
-export const _testing = {
-  verifyBakongSignature,
-  BakongWebhookSchema,
-};

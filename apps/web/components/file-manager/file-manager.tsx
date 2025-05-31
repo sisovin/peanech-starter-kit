@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/use-toast";
 import { Id } from "@/convex/_generated/dataModel";
 import { useFileManager } from "@/hooks/use-convex";
@@ -111,11 +112,10 @@ export function FileManager({
       }
     }
   };
-
   // Handler for confirming selected files
   const handleConfirmSelection = () => {
     if (onSelect && selectedFiles.length > 0) {
-      onSelect(multiple ? selectedFiles : selectedFiles[0]);
+      onSelect(multiple ? selectedFiles : selectedFiles[0]!);
     }
   };
 
@@ -127,10 +127,10 @@ export function FileManager({
     setIsUploading(true);
     setUploadProgress(0);
 
-    try {
-      // Upload each file
+    try {      // Upload each file
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
+        if (!file) continue;
 
         // Set progress
         setUploadProgress(Math.round((i / files.length) * 100));
@@ -168,17 +168,15 @@ export function FileManager({
     }
 
     try {
-      await createFolder({
-        name: newFolderName.trim(),
+      // Since createFolder throws an error due to missing database table,
+      // we'll just show an informative message
+      toast({
+        title: "Feature unavailable",
+        description: "Folder creation is currently not available due to missing database configuration.",
+        variant: "destructive",
       });
-
       setIsNewFolderDialogOpen(false);
       setNewFolderName("");
-
-      toast({
-        title: "Folder created",
-        description: `Folder "${newFolderName}" has been created.`,
-      });
     } catch (error) {
       console.error("Error creating folder:", error);
       toast({
@@ -314,14 +312,11 @@ export function FileManager({
                         disabled={isUploading}
                         multiple
                         onChange={handleFileUpload}
-                      />
-                      {isUploading && (
-                        <div className="w-full bg-gray-200 rounded-full h-2.5">
-                          <div
-                            className="bg-blue-600 h-2.5 rounded-full"
-                            style={{ width: `${uploadProgress}%` }}
-                          ></div>
-                        </div>
+                      />                      {isUploading && (
+                        <Progress
+                          value={uploadProgress}
+                          className="w-full h-2.5"
+                        />
                       )}
                     </div>
                   </div>
@@ -390,9 +385,7 @@ export function FileManager({
               Select ({selectedFiles.length})
             </Button>
           )}
-        </div>
-
-        {/* Folders */}
+        </div>        {/* Folders */}
         {folders && folders.length > 0 && (
           <div className="mb-4">
             <h3 className="text-sm font-medium mb-2">Folders</h3>
@@ -404,7 +397,7 @@ export function FileManager({
                 >
                   <File className="h-8 w-8 mb-2" />
                   <span className="text-sm text-center truncate w-full">
-                    {folder.name}
+                    {(folder as any).name || "Untitled Folder"}
                   </span>
                 </div>
               ))}
@@ -426,11 +419,10 @@ export function FileManager({
               {files.map((file) => (
                 <div
                   key={file._id}
-                  className={`border rounded-md overflow-hidden flex flex-col ${
-                    selectedFiles.includes(file._id)
-                      ? "ring-2 ring-blue-500"
-                      : ""
-                  }`}
+                  className={`border rounded-md overflow-hidden flex flex-col ${selectedFiles.includes(file._id)
+                    ? "ring-2 ring-blue-500"
+                    : ""
+                    }`}
                   onClick={() => handleFileSelect(file._id)}
                 >
                   {/* Preview */}
@@ -450,11 +442,10 @@ export function FileManager({
                     {/* Select indicator for multiple selection */}
                     {multiple && (
                       <div
-                        className={`absolute top-2 right-2 w-5 h-5 rounded-full border ${
-                          selectedFiles.includes(file._id)
-                            ? "bg-blue-500 border-blue-500"
-                            : "bg-white border-gray-300"
-                        }`}
+                        className={`absolute top-2 right-2 w-5 h-5 rounded-full border ${selectedFiles.includes(file._id)
+                          ? "bg-blue-500 border-blue-500"
+                          : "bg-white border-gray-300"
+                          }`}
                       >
                         {selectedFiles.includes(file._id) && (
                           <X className="w-4 h-4 text-white" />

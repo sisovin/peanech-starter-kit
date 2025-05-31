@@ -10,6 +10,7 @@ import { ClientOnly } from "@/components/client-only";
 import { BrowserExtensionHandler } from "@/components/browser-extension-handler";
 import { HydrationErrorHandler } from "@/components/hydration-error-handler";
 import { HydrationErrorBoundary } from "@/components/hydration-error-boundary";
+import { AuthBypass } from "@/components/auth/auth-bypass";
 
 export const metadata: Metadata = {
   title: "Peanech Starter Kit",
@@ -26,43 +27,45 @@ export default function RootLayout({
       <body className="antialiased" suppressHydrationWarning>
         {/* All client providers go inside body, not around html/body */}
         <HydrationErrorBoundary>
-          <ClerkProvider
-            appearance={{
-              variables: { colorPrimary: "hsl(210, 100%, 56%)" },
-              elements: {
-                formButtonPrimary: "bg-primary hover:bg-primary/90",
-                card: "bg-background border border-border shadow-sm",
-                socialButtonsIconButton:
-                  "border-border bg-muted hover:bg-muted/80",
-                formFieldInput: "bg-input border-input",
-              },
-            }}
-            publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
-            signInUrl="/sign-in"
-            signUpUrl="/sign-up"
-            afterSignInUrl="/dashboard"
-            afterSignUpUrl="/dashboard"
-          >            <NextThemeWrapper
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-          >
-              <ThemeProvider>
-                <LanguageProvider>
-                  <ConvexClientProvider>
-                    <AuthAuditLogProvider>
-                      {children}
-                      <ClientOnly>
-                        <Toaster />
-                        <BrowserExtensionHandler />
-                        <HydrationErrorHandler />
-                      </ClientOnly>
-                    </AuthAuditLogProvider>
-                  </ConvexClientProvider>
-                </LanguageProvider>
-              </ThemeProvider>
-            </NextThemeWrapper>
-          </ClerkProvider>
+          <AuthBypass>
+            <ClerkProvider
+              appearance={{
+                variables: { colorPrimary: "hsl(210, 100%, 56%)" },
+                elements: {
+                  formButtonPrimary: "bg-primary hover:bg-primary/90",
+                  card: "bg-background border border-border shadow-sm",
+                  socialButtonsIconButton:
+                    "border-border bg-muted hover:bg-muted/80",
+                  formFieldInput: "bg-input border-input",
+                },
+              }}
+              publishableKey={process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY}
+              signInUrl="/sign-in"
+              signUpUrl="/sign-up"
+              afterSignInUrl="/dashboard"
+              afterSignUpUrl="/dashboard"
+            >            <NextThemeWrapper
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+            >
+                <ThemeProvider>
+                  <LanguageProvider>
+                    <ConvexClientProvider>
+                      <AuthAuditLogProvider>
+                        {children}
+                        <ClientOnly>
+                          <Toaster />
+                          <BrowserExtensionHandler />
+                          <HydrationErrorHandler />
+                        </ClientOnly>
+                      </AuthAuditLogProvider>
+                    </ConvexClientProvider>
+                  </LanguageProvider>
+                </ThemeProvider>
+              </NextThemeWrapper>
+            </ClerkProvider>
+          </AuthBypass>
         </HydrationErrorBoundary>
       </body>
     </html>

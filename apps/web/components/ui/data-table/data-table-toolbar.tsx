@@ -35,10 +35,8 @@ export function DataTableToolbar<TData>({
   filterableColumns = [],
   searchableColumns = [],
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0;
-
-  const [activeFilter, setActiveFilter] = React.useState<string | null>(
-    searchableColumns.length ? searchableColumns[0]?.id : null
+  const isFiltered = table.getState().columnFilters.length > 0; const [activeFilter, setActiveFilter] = React.useState<string | null>(
+    searchableColumns.length > 0 && searchableColumns[0]?.id ? searchableColumns[0].id : null
   );
 
   return (

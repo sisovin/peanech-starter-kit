@@ -1,7 +1,6 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { createClient } from "@upstash/redis";
-import crypto from "crypto";
+import { Redis } from "@upstash/redis";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
@@ -9,7 +8,7 @@ import { api } from "@/convex/_generated/api";
 export const runtime = "edge";
 
 // Configure Upstash Redis for rate limiting
-const redis = createClient({
+const redis = new Redis({
   url: process.env.UPSTASH_REDIS_REST_URL || "",
   token: process.env.UPSTASH_REDIS_REST_TOKEN || "",
 });
@@ -43,27 +42,37 @@ function verifySignature(
   payload: any,
   signature: string,
   secret: string
-): boolean {
+): Promise<boolean> {
   // Remove signature from the payload for verification
   const { signature: _, ...dataToVerify } = payload;
 
   // Sort keys alphabetically for consistent hashing
-  const orderedData = Object.keys(dataToVerify)
-    .sort()
-    .reduce((obj: any, key: string) => {
-      obj[key] = dataToVerify[key];
-      return obj;
-    }, {});
+  return (async () => {
+    const orderedData = Object.keys(dataToVerify)
+      .sort()
+      .reduce((obj: any, key: string) => {
+        obj[key] = dataToVerify[key];
+        return obj;
+      }, {});
 
-  const hmac = crypto.createHmac("sha256", secret);
-  const expectedSignature = hmac
-    .update(JSON.stringify(orderedData))
-    .digest("hex");
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(secret);
+    const messageData = encoder.encode(JSON.stringify(orderedData));
 
-  return crypto.timingSafeEqual(
-    Buffer.from(signature),
-    Buffer.from(expectedSignature)
-  );
+    const key = await crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    );
+    const signatureBuffer = await crypto.subtle.sign('HMAC', key, messageData);
+    const expectedSignature = Array.from(new Uint8Array(signatureBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+
+    return signature === expectedSignature;
+  })();
 }
 
 /**
@@ -92,8 +101,12 @@ async function checkRateLimit(ip: string): Promise<boolean> {
 /**
  * POST handler for PayWay webhook
  */
-export async function POST(request: NextRequest) {
-  const ip = request.ip || "unknown";
+export async function POST(request: NextRequest) {  // Extract IP from headers in Edge runtime
+  const forwarded = request.headers.get("x-forwarded-for");
+  const ip = forwarded ? forwarded.split(",")[0]?.trim() || "unknown" :
+    request.headers.get("x-real-ip") ||
+    request.headers.get("cf-connecting-ip") ||
+    "unknown";
 
   // Check rate limit
   const isRateLimitOk = await checkRateLimit(ip);
@@ -122,10 +135,8 @@ export async function POST(request: NextRequest) {
         }),
         { status: 500 }
       );
-    }
-
-    // Verify the signature
-    const isValidSignature = verifySignature(rawBody, signature, webhookSecret);
+    }    // Verify the signature
+    const isValidSignature = await verifySignature(rawBody, signature, webhookSecret);
     if (!isValidSignature) {
       console.error("Invalid PayWay webhook signature");
       return new Response(
@@ -139,10 +150,8 @@ export async function POST(request: NextRequest) {
     // Initialize Convex client
     const convex = new ConvexHttpClient(
       process.env.NEXT_PUBLIC_CONVEX_URL || ""
-    );
-
-    // Call Convex mutation to update payment status
-    await convex.mutation(api.payments.handlePayWayWebhook, {
+    );    // Call Convex action to update payment status
+    await convex.action(api.payments.handlePayWayWebhook, {
       payload,
       signature,
     });

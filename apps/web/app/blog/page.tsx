@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { formatDate } from "@/lib/blog-utils";
-// Temporarily comment out contentlayer import until it's properly set up
-// import { allPosts } from "contentlayer/generated";
+import { allPosts } from "@/.contentlayer/generated";
 import { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,28 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default function BlogPage() {
-  // Mock blog posts until contentlayer is properly set up
-  const posts = [
-    {
-      slug: "getting-started-with-mdx",
-      title: "Getting Started with MDX",
-      date: "2025-05-15",
-      description: "Learn how to use MDX features in your blog posts",
-      image: "/blog-placeholder.jpg",
-      tags: ["mdx", "markdown", "blog"],
-      author: "GitHub Copilot",
-    },
-    {
-      slug: "advanced-mdx-techniques",
-      title: "Advanced MDX Techniques",
-      date: "2025-05-10",
-      description:
-        "Take your MDX skills to the next level with these advanced techniques",
-      image: "/blog-placeholder.jpg",
-      tags: ["mdx", "advanced", "react"],
-      author: "GitHub Copilot",
-    },
-  ];
+  // Use actual posts from contentlayer
+  const posts = allPosts.filter(post => post.published !== false).sort((a, b) =>
+    new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
 
   return (
     <div className="container py-12">

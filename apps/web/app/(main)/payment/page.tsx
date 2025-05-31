@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { BakongForm } from "@/components/payment/bakong-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -73,12 +74,13 @@ export default function PaymentPage() {
   const [exchangeRate, setExchangeRate] = useState<number>(4100);
   const [isRateLoading, setIsRateLoading] = useState<boolean>(true);
   const [convertedAmount, setConvertedAmount] = useState<number>(0);
-
   // Transactions
-  const recentTransactions = useQuery(api.payments.getRecentPayments, {
-    userId: user?.id,
-    limit: 5,
-  });
+  const recentTransactions = useQuery(api.payments.getRecentPayments,
+    user?.id ? {
+      userId: user.id,
+      limit: 5,
+    } : "skip"
+  );
 
   // Convex mutations (commented out, would be implemented in a real app)
   // const processPayWayPayment = useMutation(api.payments.processPayWayPayment);
@@ -499,8 +501,8 @@ export default function PaymentPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {recentTransactions ? (
-                recentTransactions.length > 0 ? (
+              {recentTransactions !== undefined ? (
+                Array.isArray(recentTransactions) && recentTransactions.length > 0 ? (
                   <div className="space-y-4">
                     {recentTransactions.map((transaction: Transaction) => (
                       <div

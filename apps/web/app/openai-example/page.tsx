@@ -21,7 +21,7 @@ type Message = {
 
 function APIConfigAlert() {
   return (
-    <Alert className="mb-6" variant="warning">
+    <Alert className="mb-6">
       <AlertCircle className="h-4 w-4" />
       <AlertTitle>Configuration Required</AlertTitle>
       <AlertDescription>

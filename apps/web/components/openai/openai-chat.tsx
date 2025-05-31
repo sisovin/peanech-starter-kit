@@ -117,18 +117,16 @@ export function OpenAIChat({
               .map((msg, index) => (
                 <Card
                   key={index}
-                  className={`overflow-hidden ${
-                    msg.role === "user" ? "bg-muted/50" : "bg-background"
-                  }`}
+                  className={`overflow-hidden ${msg.role === "user" ? "bg-muted/50" : "bg-background"
+                    }`}
                 >
                   <CardContent className="p-3">
                     <div className="flex gap-2">
                       <div
-                        className={`font-semibold ${
-                          msg.role === "user"
+                        className={`font-semibold ${msg.role === "user"
                             ? "text-primary"
                             : "text-secondary-foreground"
-                        }`}
+                          }`}
                       >
                         {msg.role === "user" ? "You:" : "AI:"}
                       </div>
@@ -181,9 +179,7 @@ export function OpenAIChat({
             <PopoverContent className="w-80 p-0" align="end">
               <OpenAISettingsPanel compact />
             </PopoverContent>
-          </Popover>
-
-          <Textarea
+          </Popover>          <Textarea
             ref={textareaRef}
             placeholder={placeholder}
             value={input}
@@ -191,7 +187,6 @@ export function OpenAIChat({
             onKeyDown={handleKeyDown}
             className="min-h-12 resize-none flex-1"
             rows={1}
-            maxRows={5}
           />
 
           {isLoading ? (

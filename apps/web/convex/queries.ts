@@ -134,15 +134,15 @@ export const getPublishedBlogPosts = query({
         // Create return object with proper typing
         return {
           ...post,
-          author: author 
+          author: author
             ? {
-                _id: author._id,
-                firstName: author.firstName || null,
-                lastName: author.lastName || null,
-                // Use proper type assertion for UserDoc interface
-                imageUrl: (author as UserDoc).imageUrl || null,
-                username: (author as UserDoc).username || null,
-              }
+              _id: author._id,
+              firstName: author.firstName || null,
+              lastName: author.lastName || null,
+              // Use proper type assertion for UserDoc interface
+              imageUrl: (author as UserDoc).imageUrl || null,
+              username: (author as UserDoc).username || null,
+            }
             : undefined,
         };
       })
@@ -178,22 +178,22 @@ export const getBlogPostBySlug = query({
 
     // Return the enriched post
     return {
-      ...post,      author: author
+      ...post, author: author
         ? {
-            _id: author._id,
-            firstName: author.firstName || null,
-            lastName: author.lastName || null,
-            // Use proper type assertion for UserDoc interface
-            imageUrl: (author as UserDoc).imageUrl || null,
-            username: (author as UserDoc).username || null,
-          }
+          _id: author._id,
+          firstName: author.firstName || null,
+          lastName: author.lastName || null,
+          // Use proper type assertion for UserDoc interface
+          imageUrl: (author as UserDoc).imageUrl || null,
+          username: (author as UserDoc).username || null,
+        }
         : undefined,
       featuredImage: featuredImage
         ? {
-            _id: featuredImage._id,
-            url: featuredImage.url || "",
-            alt: featuredImage.alt || "",
-          }
+          _id: featuredImage._id,
+          url: featuredImage.url || "",
+          alt: featuredImage.alt || "",
+        }
         : undefined,
     };
   },
@@ -468,6 +468,7 @@ export const trackApiUsage = mutation({
  * Get API usage statistics
  */
 export const getApiUsageStats = query({
+  args: {},
   handler: async (ctx) => {
     // Get all API usage records from the last 24 hours
     const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;

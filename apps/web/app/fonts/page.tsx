@@ -1,4 +1,4 @@
-import { ThemeToggle } from "../../components/theme-toggle"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { Button } from "@workspace/ui/components/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@workspace/ui/components/card"
 import { Badge } from "@workspace/ui/components/badge"

@@ -2,6 +2,7 @@ import { query } from "./_generated/server";
 import { v } from "convex/values";
 
 export const getStats = query({
+  args: {},
   handler: async (ctx) => {
     const stats = await ctx.db.query("stats").collect();
 

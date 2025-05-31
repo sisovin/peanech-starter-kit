@@ -26,7 +26,7 @@ import * as Yup from "yup";
 
 // We would need to install @khmer-shared/qr-code in a real implementation
 // For this example, we'll mock the QR code generation
-const QRCode = ({ data, size = 200 }) => {
+const QRCode = ({ data, size = 200 }: { data: string; size?: number }) => {
   return (
     <div className="flex flex-col items-center justify-center">
       <div
@@ -192,9 +192,10 @@ export function BakongForm({
       setPaymentStatus("failed");
 
       // Handle specific error types
-      if (error.message.includes("insufficient")) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes("insufficient")) {
         setErrors({ amount: "Insufficient balance in Bakong account" });
-      } else if (error.message.includes("phone")) {
+      } else if (errorMessage.includes("phone")) {
         setErrors({
           phoneNumber: "Invalid phone number or not registered with Bakong",
         });
@@ -290,8 +291,8 @@ export function BakongForm({
                         className={cn(
                           "w-full",
                           errors.phoneNumber &&
-                            touched.phoneNumber &&
-                            "border-red-500"
+                          touched.phoneNumber &&
+                          "border-red-500"
                         )}
                       />
                       <ErrorMessage
@@ -337,8 +338,8 @@ export function BakongForm({
                         className={cn(
                           "w-full",
                           errors.reference &&
-                            touched.reference &&
-                            "border-red-500"
+                          touched.reference &&
+                          "border-red-500"
                         )}
                       />
                       <ErrorMessage

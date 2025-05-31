@@ -261,39 +261,37 @@ export default function PlaygroundChat() {
                       </p>
                     ) : (
                       <>
-                        <div className="prose dark:prose-invert max-w-none">
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm, remarkBreaks]}
-                            components={{
-                              code({
-                                node,
-                                inline,
-                                className,
-                                children,
-                                ...props
-                              }) {
-                                const match = /language-(\w+)/.exec(
-                                  className || ""
-                                );
-                                return !inline && match ? (
-                                  <SyntaxHighlighter
-                                    style={vscDarkPlus}
-                                    language={match[1]}
-                                    PreTag="div"
-                                    {...props}
-                                  >
-                                    {String(children).replace(/\n$/, "")}
-                                  </SyntaxHighlighter>
-                                ) : (
-                                  <code className={className} {...props}>
-                                    {children}
-                                  </code>
-                                );
-                              },
-                            }}
-                          >
-                            {message.content || "*Generating...*"}
-                          </ReactMarkdown>
+                        <div className="prose dark:prose-invert max-w-none">                          <ReactMarkdown
+                          remarkPlugins={[remarkGfm, remarkBreaks]}
+                          components={{
+                            code({
+                              className,
+                              children,
+                              ...props
+                            }: any) {
+                              const match = /language-(\w+)/.exec(
+                                className || ""
+                              );
+                              const isInline = !match;
+                              return !isInline && match ? (
+                                <SyntaxHighlighter
+                                  style={vscDarkPlus}
+                                  language={match[1]}
+                                  PreTag="div"
+                                  {...props}
+                                >
+                                  {String(children).replace(/\n$/, "")}
+                                </SyntaxHighlighter>
+                              ) : (
+                                <code className={className} {...props}>
+                                  {children}
+                                </code>
+                              );
+                            },
+                          }}
+                        >
+                          {message.content || "*Generating...*"}
+                        </ReactMarkdown>
                         </div>
                         <button
                           onClick={() => handleCopyMessage(message.content)}

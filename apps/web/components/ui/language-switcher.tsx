@@ -29,7 +29,7 @@ interface LanguageSwitcherProps {
 
 export function LanguageSwitcher({ className }: LanguageSwitcherProps) {
   const [currentLanguage, setCurrentLanguage] = useState<Language>(
-    languages[0]
+    languages[0]!
   );
 
   useEffect(() => {

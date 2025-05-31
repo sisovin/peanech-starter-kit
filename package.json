@@ -1,6 +1,7 @@
 {
   "name": "peanech-starter-kit",
   "version": "0.0.1",
+  "type": "module",
   "private": true,
   "scripts": {
     "build": "turbo build",

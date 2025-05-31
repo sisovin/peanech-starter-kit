@@ -85,16 +85,16 @@ export function ChatHistory({
 
   const saveCurrentSession = () => {
     // Filter out system messages for the title generation
-    const userMessages = currentMessages.filter((m) => m.role === "user");
-
-    if (userMessages.length === 0) {
+    const userMessages = currentMessages.filter((m) => m.role === "user"); if (userMessages.length === 0) {
       return; // Don't save empty sessions
     }
 
     // Create a title from the first user message
+    const firstMessage = userMessages[0];
+    const content = firstMessage?.content || "New Chat";
     const title =
-      userMessages[0].content.slice(0, 30) +
-      (userMessages[0].content.length > 30 ? "..." : "");
+      content.slice(0, 30) +
+      (content.length > 30 ? "..." : "");
 
     const newSession: ChatSession = {
       id: Date.now().toString(),

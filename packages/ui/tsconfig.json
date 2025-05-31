@@ -2,10 +2,20 @@
   "extends": "@workspace/typescript-config/react-library.json",
   "compilerOptions": {
     "baseUrl": ".",
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@workspace/ui/*": ["./src/*"]
+      "@workspace/ui/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["."],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "."
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

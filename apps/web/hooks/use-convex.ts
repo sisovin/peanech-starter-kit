@@ -129,12 +129,15 @@ export function useFileManager() {
 
   // Delete file
   const deleteFile = useMutation(api.files.deleteFile);
+  // Query for folders - commented out since listFolders doesn't exist
+  // const folders = useQuery(api.files.listFolders, {});
+  const folders: any[] = []; // Empty array as fallback
 
-  // Query for folders
-  const folders = useQuery(api.files.listFolders, {});
-
-  // Create folder
-  const createFolder = useMutation(api.files.createFolder);
+  // Create folder - commented out since createFolder doesn't exist
+  // const createFolder = useMutation(api.files.createFolder);
+  const createFolder = async () => {
+    throw new Error("Folder creation is not available - missing database table");
+  };
 
   // Handle file upload (complete process)
   const uploadFile = async (file: File, metadata: any = {}) => {

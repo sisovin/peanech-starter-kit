@@ -21,6 +21,7 @@ interface CustomImageProps {
 
 interface CustomHeadingProps extends HTMLAttributes<HTMLHeadingElement> {
   id?: string;
+  as?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 }
 
 const CustomLink = ({ href, children, ...props }: CustomLinkProps) => {
@@ -62,9 +63,10 @@ const CustomImage = ({
   );
 };
 
-const CustomHeading = ({ id, children, ...props }: CustomHeadingProps) => {
+const CustomHeading = ({ id, as = "h2", children, ...props }: CustomHeadingProps) => {
+  const Tag = as;
   return (
-    <h2 id={id} className="group flex whitespace-pre-wrap" {...props}>
+    <Tag id={id} className="group flex whitespace-pre-wrap" {...props}>
       {children}
       {id && (
         <a
@@ -75,7 +77,7 @@ const CustomHeading = ({ id, children, ...props }: CustomHeadingProps) => {
           #
         </a>
       )}
-    </h2>
+    </Tag>
   );
 };
 
