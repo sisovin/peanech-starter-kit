@@ -1,15 +1,10 @@
+"use client";
+
 import { ButtonInDialogExample } from "@/components/examples/button-in-dialog-example";
 import { ButtonUsageExample } from "@/components/examples/button-usage-example";
 import { ButtonWithLoadingHookExample } from "@/components/examples/button-with-loading-hook-example";
-import { Metadata } from "next";
 import Link from "next/link";
 import { Toaster } from "sonner";
-
-export const metadata: Metadata = {
-  title: "UI Component Showcase",
-  description:
-    "A showcase of customizable UI components with various styles and states",
-};
 
 export default function ButtonShowcase() {
   return (

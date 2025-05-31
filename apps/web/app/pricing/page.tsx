@@ -385,55 +385,57 @@ export default function PricingPage() {
       <div className="pt-16">
         <h2 className="text-2xl font-bold tracking-tight text-center mb-10">
           Compare Plans
-        </h2>
-
-        <div className="overflow-x-auto">
-          <Table>
-            <TableCaption>All prices are in USD</TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Feature</TableHead>
-                <TableHead>Free</TableHead>
-                <TableHead>Pro</TableHead>
-                <TableHead>Enterprise</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {features.map((feature, index) => (
-                <TableRow
-                  key={index}
-                  className={index % 2 === 0 ? "bg-muted/50" : ""}
-                >
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-2">
-                      {feature.name}
-                      {feature.description && (
-                        <TooltipProvider>
+        </h2>        <div className="overflow-x-auto">
+          <TooltipProvider>
+            <Table>
+              <TableCaption>All prices are in USD</TableCaption>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Feature</TableHead>
+                  <TableHead>Free</TableHead>
+                  <TableHead>Pro</TableHead>
+                  <TableHead>Enterprise</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {features.map((feature, index) => (
+                  <TableRow
+                    key={index}
+                    className={index % 2 === 0 ? "bg-muted/50" : ""}
+                  >
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-2">
+                        {feature.name}                        {feature.description && (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                              <button
+                                className="inline-flex items-center"
+                                aria-label={`More information about ${feature.name}`}
+                              >
+                                <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                              </button>
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>{feature.description}</p>
                             </TooltipContent>
                           </Tooltip>
-                        </TooltipProvider>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <FeatureCell value={feature.included.free} />
-                  </TableCell>
-                  <TableCell>
-                    <FeatureCell value={feature.included.pro} />
-                  </TableCell>
-                  <TableCell>
-                    <FeatureCell value={feature.included.enterprise} />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <FeatureCell value={feature.included.free} />
+                    </TableCell>
+                    <TableCell>
+                      <FeatureCell value={feature.included.pro} />
+                    </TableCell>
+                    <TableCell>
+                      <FeatureCell value={feature.included.enterprise} />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TooltipProvider>
         </div>
       </div>
 
@@ -568,11 +570,15 @@ export default function PricingPage() {
         <div className="flex flex-col sm:flex-row justify-center gap-4">
           <Button size="lg" onClick={() => setSelectedPlan("pro")}>
             Start Free Trial
-          </Button>
-          <Button size="lg" variant="outline" asChild>
-            <a href="#" target="_blank" rel="noopener noreferrer">
-              Book a Demo
-            </a>
+          </Button>          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => {
+              // Handle demo booking
+              console.log("Demo booking requested");
+            }}
+          >
+            Book a Demo
           </Button>
         </div>
       </div>

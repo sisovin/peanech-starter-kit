@@ -35,17 +35,25 @@ export async function generateMetadata({
 
 // Generate static params for all tags
 export async function generateStaticParams() {
-  const tags = new Set<string>();
+  try {
+    const tags = new Set<string>();
 
-  allPosts.forEach((post) => {
-    post.tags?.forEach((tag) => {
-      tags.add(tag);
+    allPosts.forEach((post) => {
+      post.tags?.forEach((tag) => {
+        // Avoid conflicts with reserved routes
+        if (tag && tag !== 'blog' && tag !== 'tag') {
+          tags.add(tag);
+        }
+      });
     });
-  });
 
-  return Array.from(tags).map((tag) => ({
-    tag,
-  }));
+    return Array.from(tags).map((tag) => ({
+      tag: encodeURIComponent(tag),
+    }));
+  } catch (error) {
+    console.error('Error generating static params for blog tags:', error);
+    return [];
+  }
 }
 
 export default async function TagPage({ params }: TagPageProps) {

@@ -13,6 +13,9 @@ import { redirect } from "next/navigation";
 import { ConvexStats } from "./convex-stats";
 import { InitConvex } from "./init-convex";
 
+// Force dynamic rendering since this page uses Clerk's currentUser()
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardPage() {
   // Wrap in try/catch to handle and log any errors from currentUser()
   try {

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -234,7 +234,7 @@ const shareOptions: ShareOption[] = [
   },
 ];
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessPageContent() {
   const { user, isSignedIn, isLoaded } = useUser();
   const searchParams = useSearchParams();
 
@@ -538,6 +538,26 @@ export default function PaymentSuccessPage() {
           </Card>
         </ErrorBoundary>
       </div>
-    </div>
+    </div>);
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <Card className="w-full max-w-md mx-4">
+          <CardContent className="p-8">
+            <div className="space-y-4">
+              <Skeleton className="h-12 w-12 rounded-full mx-auto" />
+              <Skeleton className="h-6 w-3/4 mx-auto" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-2/3" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    }>
+      <PaymentSuccessPageContent />
+    </Suspense>
   );
 }
